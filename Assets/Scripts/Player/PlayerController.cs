@@ -9,6 +9,7 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Set up")]
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float sprintSpeed = 10f;
     [SerializeField] private float jumpHeight = 2f;
     [SerializeField] private float mouseSensitivity = 2f;
     [SerializeField] private Transform cameraTransform;
@@ -18,15 +19,20 @@ public class PlayerController : NetworkBehaviour
     private InputAction _moveAction;
     private InputAction _jumpAction;
     private InputAction _lookAction;
+    private InputAction _sprintAction;
 
     private CharacterController controller;
     private Vector2 moveInput = Vector2.zero;
     private Vector2 lookInput = Vector2.zero;
     
     private Vector3 velocity;
+    private float speed;
     private bool isGrounded;
     public bool isSprinting;
     private float xRotation = 0f;
+    private float sprintTime = 2f;
+    private float sprintBarDrainSpeed = 3.0f;
+    private float sprintBarRecoverSpeed = 0.5f;
     
     private void Awake()
     {
@@ -44,6 +50,7 @@ public class PlayerController : NetworkBehaviour
                 _moveAction = _actionMap.FindAction("Move");
                 _jumpAction = _actionMap.FindAction("Jump");
                 _lookAction = _actionMap.FindAction("Look");
+                _sprintAction = _actionMap.FindAction("Sprint");
 
                 _actionMap.Enable();
 
@@ -60,6 +67,11 @@ public class PlayerController : NetworkBehaviour
                 if (_jumpAction != null)
                 {
                     _jumpAction.performed += ctx => Jump();
+                }
+                if (_sprintAction != null)
+                {
+                    _sprintAction.started += OnSprintStarted;
+                    _sprintAction.canceled += OnSprintCanceled;
                 }
             }
             else
@@ -91,6 +103,7 @@ public class PlayerController : NetworkBehaviour
 
         HandleMovement();
         HandleLook();
+        RefillSprintEnergy();
     }
 
     private void HandleMovement()
@@ -102,7 +115,12 @@ public class PlayerController : NetworkBehaviour
         }
 
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
-        controller.Move(move * moveSpeed * Time.deltaTime);
+        if (isSprinting && sprintTime > 0f)
+        {
+            speed = sprintSpeed;
+        }
+        else speed = moveSpeed;
+        controller.Move(move * speed * Time.deltaTime);
         
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
@@ -128,7 +146,17 @@ public class PlayerController : NetworkBehaviour
     {
         moveInput = Vector2.zero;
     }
-    
+
+    private void OnSprintStarted(InputAction.CallbackContext context)
+    {
+        isSprinting = true;
+    }
+
+    private void OnSprintCanceled(InputAction.CallbackContext context)
+    {
+        isSprinting = false;
+    }
+
     private void OnPlayerLook(InputAction.CallbackContext context)
     {
         lookInput = context.ReadValue<Vector2>();
@@ -139,6 +167,21 @@ public class PlayerController : NetworkBehaviour
         if (isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+    }
+
+    private void RefillSprintEnergy()
+    {
+        if (!isSprinting)
+        {
+            if (sprintTime >= 2.0f) return;
+            sprintTime += Time.deltaTime * sprintBarRecoverSpeed;
+        }
+
+        else
+        {
+            if (sprintTime <= 0.0f) return;
+            sprintTime -= Time.deltaTime * sprintBarDrainSpeed;
         }
     }
 }
