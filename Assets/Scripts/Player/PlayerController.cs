@@ -21,6 +21,7 @@ public class PlayerController : NetworkBehaviour
     private InputAction _lookAction;
     private InputAction _sprintAction;
     private InputAction _shootAction;
+    private InputAction _reloadAction;
 
     private CharacterController controller;
     private Vector2 moveInput = Vector2.zero;
@@ -35,9 +36,12 @@ public class PlayerController : NetworkBehaviour
     private float sprintBarDrainSpeed = 3.0f;
     private float sprintBarRecoverSpeed = 0.5f;
     
+    //private WeaponController currentWeapon;
+    
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        //currentWeapon = GetComponent<WeaponController>();
     }
     
     public override void OnNetworkSpawn()
@@ -60,6 +64,7 @@ public class PlayerController : NetworkBehaviour
             _lookAction = _actionMap.FindAction("Look");
             _sprintAction = _actionMap.FindAction("Sprint");
             _shootAction = _actionMap.FindAction("Attack");
+            _reloadAction = _actionMap.FindAction("Reload");
 
             _actionMap.Enable();
 
@@ -82,10 +87,15 @@ public class PlayerController : NetworkBehaviour
                 _sprintAction.started += OnSprintStarted;
                 _sprintAction.canceled += OnSprintCanceled;
             }
-            if (_shootAction != null)
-            {
-                _shootAction.performed += ctx => Shoot();
-            }
+            //if (_shootAction != null)
+            //{
+            //    _shootAction.performed += ctx => currentWeapon.StartShooting();
+            //    _shootAction.canceled += ctx => currentWeapon.StopShooting();
+            //}
+            //if (_reloadAction != null)
+            //{
+            //    _reloadAction.performed += ctx => Reload();
+            //}
         }
         else
         {
@@ -180,12 +190,6 @@ public class PlayerController : NetworkBehaviour
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
-    }
-
-    private void Shoot()
-    {
-        Debug.Log($"{gameObject.name} take a shoot",transform);
-
     }
 
     private void RefillSprintEnergy()

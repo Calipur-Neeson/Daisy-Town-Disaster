@@ -264,6 +264,7 @@ GameObject:
   - component: {fileID: 8579490202387724721}
   - component: {fileID: 7958643916245663061}
   - component: {fileID: 4775421651039917626}
+  - component: {fileID: 3034285832986082403}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -405,6 +406,21 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &3034285832986082403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4622603795820123477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19b6013b0c8a76848a5bc1c4f4fce32b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  weaponData: {fileID: 11400000, guid: 0a429c6a1d5fe7545a58c598bef4d440, type: 2}
+  shootPoint: {fileID: 4312014954029045563}
 --- !u!1 &4845384747326496779
 GameObject:
   m_ObjectHideFlags: 0
