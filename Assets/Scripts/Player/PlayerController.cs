@@ -41,47 +41,53 @@ public class PlayerController : NetworkBehaviour
     
     public override void OnNetworkSpawn()
     {
-        if (IsOwner)
+        if (!IsOwner)
         {
-            _actionMap = actionAsset.FindActionMap("Player");
-
-            if (_actionMap != null)
-            {
-                _moveAction = _actionMap.FindAction("Move");
-                _jumpAction = _actionMap.FindAction("Jump");
-                _lookAction = _actionMap.FindAction("Look");
-                _sprintAction = _actionMap.FindAction("Sprint");
-
-                _actionMap.Enable();
-
-                if (_moveAction != null)
-                {
-                    _moveAction.performed += OnPlayerMove;
-                    _moveAction.canceled += OnPlayerStop;
-                }
-                if (_lookAction != null)
-                {
-                    _lookAction.performed += OnPlayerLook;
-                    _lookAction.canceled += ctx => lookInput = Vector2.zero;
-                }
-                if (_jumpAction != null)
-                {
-                    _jumpAction.performed += ctx => Jump();
-                }
-                if (_sprintAction != null)
-                {
-                    _sprintAction.started += OnSprintStarted;
-                    _sprintAction.canceled += OnSprintCanceled;
-                }
-            }
-            else
-            {
-                Debug.LogWarning("InputActionMap 'Player' not found. Please check.");
-            }
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            AudioListener audioListener = GetComponentInChildren<AudioListener>();
+            audioListener.enabled = false;
+            Camera cam = GetComponentInChildren<Camera>();
+            cam.enabled = false;
+            return;
         }
+        
+        _actionMap = actionAsset.FindActionMap("Player");
+
+        if (_actionMap != null)
+        {
+            _moveAction = _actionMap.FindAction("Move");
+            _jumpAction = _actionMap.FindAction("Jump");
+            _lookAction = _actionMap.FindAction("Look");
+            _sprintAction = _actionMap.FindAction("Sprint");
+
+            _actionMap.Enable();
+
+            if (_moveAction != null)
+            {
+                _moveAction.performed += OnPlayerMove;
+                _moveAction.canceled += OnPlayerStop;
+            }
+            if (_lookAction != null)
+            {
+                _lookAction.performed += OnPlayerLook;
+                _lookAction.canceled += ctx => lookInput = Vector2.zero;
+            }
+            if (_jumpAction != null)
+            {
+                _jumpAction.performed += ctx => Jump();
+            }
+            if (_sprintAction != null)
+            {
+                _sprintAction.started += OnSprintStarted;
+                _sprintAction.canceled += OnSprintCanceled;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("InputActionMap 'Player' not found. Please check.");
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
     
     private void OnDisable()
