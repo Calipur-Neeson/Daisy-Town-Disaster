@@ -20,6 +20,7 @@ public class PlayerController : NetworkBehaviour
     private InputAction _jumpAction;
     private InputAction _lookAction;
     private InputAction _sprintAction;
+    private InputAction _shootAction;
 
     private CharacterController controller;
     private Vector2 moveInput = Vector2.zero;
@@ -58,6 +59,7 @@ public class PlayerController : NetworkBehaviour
             _jumpAction = _actionMap.FindAction("Jump");
             _lookAction = _actionMap.FindAction("Look");
             _sprintAction = _actionMap.FindAction("Sprint");
+            _shootAction = _actionMap.FindAction("Attack");
 
             _actionMap.Enable();
 
@@ -79,6 +81,10 @@ public class PlayerController : NetworkBehaviour
             {
                 _sprintAction.started += OnSprintStarted;
                 _sprintAction.canceled += OnSprintCanceled;
+            }
+            if (_shootAction != null)
+            {
+                _shootAction.performed += ctx => Shoot();
             }
         }
         else
@@ -174,6 +180,12 @@ public class PlayerController : NetworkBehaviour
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
+    }
+
+    private void Shoot()
+    {
+        Debug.Log($"{gameObject.name} take a shoot",transform);
+
     }
 
     private void RefillSprintEnergy()
