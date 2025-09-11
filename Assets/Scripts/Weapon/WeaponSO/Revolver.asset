@@ -15,7 +15,7 @@ MonoBehaviour:
   damage: 50
   magazine: 6
   reloadTime: 2
-  shootInterval: 0.5
+  shootInterval: 2
   range: 100
   bulletSpeed: 100
   type: 0

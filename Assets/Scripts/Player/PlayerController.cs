@@ -30,18 +30,19 @@ public class PlayerController : NetworkBehaviour
     private Vector3 velocity;
     private float speed;
     private bool isGrounded;
-    public bool isSprinting;
+    private bool isSprinting;
+    private bool isShoot;
     private float xRotation = 0f;
     private float sprintTime = 2f;
     private float sprintBarDrainSpeed = 3.0f;
     private float sprintBarRecoverSpeed = 0.5f;
     
-    //private WeaponController currentWeapon;
+    private WeaponController currentWeapon;
     
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        //currentWeapon = GetComponent<WeaponController>();
+        currentWeapon = GetComponent<WeaponController>();
     }
     
     public override void OnNetworkSpawn()
@@ -87,15 +88,15 @@ public class PlayerController : NetworkBehaviour
                 _sprintAction.started += OnSprintStarted;
                 _sprintAction.canceled += OnSprintCanceled;
             }
-            //if (_shootAction != null)
-            //{
-            //    _shootAction.performed += ctx => currentWeapon.StartShooting();
-            //    _shootAction.canceled += ctx => currentWeapon.StopShooting();
-            //}
-            //if (_reloadAction != null)
-            //{
-            //    _reloadAction.performed += ctx => Reload();
-            //}
+            if (_shootAction != null)
+            {
+                _shootAction.performed += ctx => StartShoot();
+                _shootAction.canceled += ctx => StopShoot();
+            }
+            if (_reloadAction != null)
+            {
+                _reloadAction.performed += ctx => currentWeapon.Reload();
+            }
         }
         else
         {
@@ -126,6 +127,9 @@ public class PlayerController : NetworkBehaviour
         HandleMovement();
         HandleLook();
         RefillSprintEnergy();
+
+        if (isShoot) 
+            currentWeapon.Shoot();
     }
 
     private void HandleMovement()
@@ -190,6 +194,16 @@ public class PlayerController : NetworkBehaviour
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
+    }
+
+    private void StartShoot()
+    {
+        isShoot = true;
+    }
+
+    private void StopShoot()
+    {
+        isShoot = false;
     }
 
     private void RefillSprintEnergy()

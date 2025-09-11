@@ -9,18 +9,48 @@ public class WeaponController : NetworkBehaviour
 
     private int currentAmmo;
     private bool isReloading = false;
-    private Coroutine fireCoroutine;
+    private bool canshoot = true;
+
+    [SerializeField] private float intervalTime;
+    [SerializeField] private float reloadTime;
 
     private void Start()
     {
         InitWeapon();
+        intervalTime = weaponData.shootInterval;
+        reloadTime = weaponData.reloadTime;
     }
 
+    private void Update()
+    {
+        if (!canshoot)
+        {
+            intervalTime -= Time.deltaTime;
+            if (intervalTime <= 0)
+            {
+                canshoot = true;
+                intervalTime = weaponData.shootInterval;
+            }
+        }
+
+        if (isReloading)
+        {
+            reloadTime -= Time.deltaTime;
+            if (reloadTime <= 0)
+            {
+                isReloading = false;
+                reloadTime = weaponData.reloadTime;
+                currentAmmo = weaponData.magazine;
+                Debug.Log($"Done reloading! Current Ammo: {currentAmmo}");
+            }
+        }
+    }
     private void InitWeapon()
     {
-        if (weaponData == null) return;
+        if (!IsOwner || weaponData == null) return;
 
         currentAmmo = weaponData.magazine;
+        //TODO: Equip weapon, move to the right position.
         Debug.Log($"Init Weapon: {weaponData.name}, Current Ammo: {currentAmmo}");
     }
 
@@ -40,54 +70,22 @@ public class WeaponController : NetworkBehaviour
 
     private void Fire()
     {
-        currentAmmo--;
-        GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint);
-        Debug.Log($"{gameObject.name} Fire, Current Ammo: {currentAmmo}", transform);
-    }
-    
-    public void StartShooting() 
-    {
-        if (fireCoroutine == null)
+        if (canshoot && !isReloading)
         {
-            fireCoroutine = StartCoroutine(AutoFire());
+            canshoot = false;
+            currentAmmo--;
+            //TODO: Start shooting animation.
+
+            GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint);
+            Debug.Log($"{gameObject.name} Fire, Current Ammo: {currentAmmo}", transform);
         }
     }
 
-    public void StopShooting() 
-    {
-        if (fireCoroutine != null)
-        {
-            StopCoroutine(fireCoroutine);
-            fireCoroutine = null;
-        }
-    }
-
-    private IEnumerator AutoFire()
-    {
-        while (true)
-        {
-            Shoot();
-            yield return new WaitForSeconds(weaponData.shootInterval);
-        }
-    }
-
-    
-    #region Reloading
     public void Reload()
     {
-        if (!IsOwner || isReloading) return;
-        StartCoroutine(ReloadRoutine());
-    }
-
-    private IEnumerator ReloadRoutine()
-    {
+        if (!IsOwner || isReloading || currentAmmo == weaponData.magazine) return;
         isReloading = true;
+        //TODO: Start reload animation.
         Debug.Log("Reloading...");
-        yield return new WaitForSeconds(weaponData.reloadTime);
-        currentAmmo = weaponData.magazine;
-        isReloading = false;
-        Debug.Log($"Done! Current Ammo: {currentAmmo}");
     }
-    #endregion
-
 }
