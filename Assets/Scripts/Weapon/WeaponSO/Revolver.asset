@@ -15,9 +15,9 @@ MonoBehaviour:
   damage: 50
   magazine: 6
   reloadTime: 2
-  shootInterval: 2
+  shootInterval: 0.5
   range: 100
   bulletSpeed: 100
   type: 0
   weaponPrefab: {fileID: 3609203776889303482, guid: ddaf5643783fb2746b1c353a4de2860b, type: 3}
-  bulletPrefab: {fileID: 4869774977184029891, guid: 40020b843d2cadb489e0417d34250e07, type: 3}
+  bulletPrefab: {fileID: 54862806637362695, guid: 40020b843d2cadb489e0417d34250e07, type: 3}

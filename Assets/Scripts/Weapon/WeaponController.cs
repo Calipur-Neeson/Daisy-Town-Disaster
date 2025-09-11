@@ -76,8 +76,31 @@ public class WeaponController : NetworkBehaviour
             currentAmmo--;
             //TODO: Start shooting animation.
 
+            FireOnServerRpc();
             GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint);
+            bullet.transform.SetParent(null);
+            NormalBullet normalBullet = bullet.GetComponent<NormalBullet>();
+            normalBullet.Init(weaponData.bulletSpeed, weaponData.range, weaponData.damage);
             Debug.Log($"{gameObject.name} Fire, Current Ammo: {currentAmmo}", transform);
+        }
+    }
+
+    [ServerRpc]
+    private void FireOnServerRpc()
+    {
+        Debug.Log("I'm in server!!");
+        FireOnClientRpc();
+    }
+
+    [ClientRpc]
+    private void FireOnClientRpc()
+    {
+        if (!IsOwner)
+        {
+            GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint);
+            bullet.transform.SetParent(null);
+            NormalBullet normalBullet = bullet.GetComponent<NormalBullet>();
+            normalBullet.Init(weaponData.bulletSpeed, weaponData.range, weaponData.damage);
         }
     }
 
