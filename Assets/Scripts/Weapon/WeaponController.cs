@@ -11,10 +11,10 @@ public class WeaponController : NetworkBehaviour
     private bool isReloading = false;
     private bool canshoot = true;
 
-    [SerializeField] private float intervalTime;
-    [SerializeField] private float reloadTime;
+    private float intervalTime;
+    private float reloadTime;
 
-    private void Start()
+    private void Awake()
     {
         InitWeapon();
         intervalTime = weaponData.shootInterval;
@@ -88,7 +88,6 @@ public class WeaponController : NetworkBehaviour
     [ServerRpc]
     private void FireOnServerRpc()
     {
-        Debug.Log("I'm in server!!");
         FireOnClientRpc();
     }
 

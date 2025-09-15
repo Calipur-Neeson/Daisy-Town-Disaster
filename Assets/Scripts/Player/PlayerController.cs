@@ -15,6 +15,10 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private float gravity = -9.81f;
 
+    [Header("Weapon")]
+    [SerializeField] private WeaponController weaponPrefab;
+    [SerializeField] private Transform weaponParent;
+
     private InputActionMap _actionMap;
     private InputAction _moveAction;
     private InputAction _jumpAction;
@@ -41,8 +45,8 @@ public class PlayerController : NetworkBehaviour
     
     private void Awake()
     {
+        currentWeapon = Instantiate(weaponPrefab,weaponParent);
         controller = GetComponent<CharacterController>();
-        currentWeapon = GetComponent<WeaponController>();
     }
     
     public override void OnNetworkSpawn()
@@ -90,6 +94,7 @@ public class PlayerController : NetworkBehaviour
             }
             if (_shootAction != null)
             {
+                Debug.Log("I can shoot");
                 _shootAction.performed += ctx => StartShoot();
                 _shootAction.canceled += ctx => StopShoot();
             }
@@ -199,6 +204,7 @@ public class PlayerController : NetworkBehaviour
     private void StartShoot()
     {
         isShoot = true;
+        Debug.Log("Shooting");
     }
 
     private void StopShoot()
