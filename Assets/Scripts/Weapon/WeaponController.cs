@@ -16,6 +16,12 @@ public class WeaponController : NetworkBehaviour
 
     private void Awake()
     {
+
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
         InitWeapon();
         intervalTime = weaponData.shootInterval;
         reloadTime = weaponData.reloadTime;
@@ -47,6 +53,8 @@ public class WeaponController : NetworkBehaviour
     }
     private void InitWeapon()
     {
+        if (!IsOwner) Debug.Log("I'm not the owner");
+        if (weaponData == null) Debug.Log("I don't have weapon");
         if (!IsOwner || weaponData == null) return;
 
         currentAmmo = weaponData.magazine;

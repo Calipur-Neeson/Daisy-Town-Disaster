@@ -42,15 +42,29 @@ public class PlayerController : NetworkBehaviour
     private float sprintBarRecoverSpeed = 0.5f;
     
     private WeaponController currentWeapon;
-    
+
     private void Awake()
     {
-        currentWeapon = Instantiate(weaponPrefab,weaponParent);
         controller = GetComponent<CharacterController>();
     }
-    
+
+    private void Start()
+    {
+        if (!IsOwner) return;
+        SpawnWeaponServerRpc(NetworkManager.LocalClientId);
+        
+    }
+
+    [ServerRpc]
+    private void SpawnWeaponServerRpc(ulong clientId)
+    {
+        currentWeapon = Instantiate(weaponPrefab);
+        currentWeapon.GetComponent<NetworkObject>().ChangeOwnership(clientId);
+    }
+
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
         if (!IsOwner)
         {
             AudioListener audioListener = GetComponentInChildren<AudioListener>();
@@ -59,6 +73,7 @@ public class PlayerController : NetworkBehaviour
             cam.enabled = false;
             return;
         }
+        Debug.Log("Did it go here");
         
         _actionMap = actionAsset.FindActionMap("Player");
 
