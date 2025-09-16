@@ -13,7 +13,6 @@ public class WeaponSO : ScriptableObject
     
     [Header("Prefab")]
     public WeaponType type;
-    public GameObject weaponPrefab;
     public GameObject bulletPrefab;
 }
 

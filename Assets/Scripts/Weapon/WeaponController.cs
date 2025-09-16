@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 
 public class WeaponController : NetworkBehaviour
@@ -11,14 +11,17 @@ public class WeaponController : NetworkBehaviour
     private bool isReloading = false;
     private bool canshoot = true;
 
-    [SerializeField] private float intervalTime;
-    [SerializeField] private float reloadTime;
+    private float intervalTime;
+    private float reloadTime;
 
+    private List<GameObject> bulletPool = new List<GameObject>();
     private void Start()
     {
         InitWeapon();
         intervalTime = weaponData.shootInterval;
         reloadTime = weaponData.reloadTime;
+        
+        CreateBulletPool();
     }
 
     private void Update()
@@ -72,36 +75,32 @@ public class WeaponController : NetworkBehaviour
     {
         if (canshoot && !isReloading)
         {
+            int bulletIndex = GetInactiveBulletIndex();
+            if (bulletIndex == -1) return;
+            
             canshoot = false;
             currentAmmo--;
             //TODO: Start shooting animation.
 
-            FireOnServerRpc();
-            GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint);
-            bullet.transform.SetParent(null);
-            NormalBullet normalBullet = bullet.GetComponent<NormalBullet>();
-            normalBullet.Init(weaponData.bulletSpeed, weaponData.range, weaponData.damage);
+            FireOnServerRpc(bulletIndex);
+            
             Debug.Log($"{gameObject.name} Fire, Current Ammo: {currentAmmo}", transform);
         }
     }
 
     [ServerRpc]
-    private void FireOnServerRpc()
+    private void FireOnServerRpc(int bulletIndex)
     {
-        Debug.Log("I'm in server!!");
-        FireOnClientRpc();
+        ActivateBullet(bulletIndex);
+        FireOnClientRpc(bulletIndex);
     }
 
     [ClientRpc]
-    private void FireOnClientRpc()
+    private void FireOnClientRpc(int bulletIndex)
     {
-        if (!IsOwner)
-        {
-            GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint);
-            bullet.transform.SetParent(null);
-            NormalBullet normalBullet = bullet.GetComponent<NormalBullet>();
-            normalBullet.Init(weaponData.bulletSpeed, weaponData.range, weaponData.damage);
-        }
+        if (IsServer) return;
+
+        ActivateBullet(bulletIndex);
     }
 
     public void Reload()
@@ -110,5 +109,60 @@ public class WeaponController : NetworkBehaviour
         isReloading = true;
         //TODO: Start reload animation.
         Debug.Log("Reloading...");
+    }
+    
+    private void CreateBulletPool()
+    {
+        for (int i = 0; i < weaponData.magazine; i++)
+        {
+            GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint.position, Quaternion.identity,shootPoint);
+            var nb = bullet.GetComponent<NormalBullet>();
+            if (nb != null)
+            {
+                nb.SetOwner(this);
+                bullet.SetActive(false);
+                bulletPool.Add(bullet);
+            }
+        }
+    }
+    
+    private int GetInactiveBulletIndex()
+    {
+        for (int i = 0; i < bulletPool.Count; i++)
+        {
+            if (!bulletPool[i].activeInHierarchy)
+                return i;
+        }
+        return -1;
+    }
+    
+    private void ActivateBullet(int index)
+    {
+        if (index < 0 || index >= bulletPool.Count) return;
+
+        GameObject bullet = bulletPool[index];
+        bullet.transform.SetParent(null);
+        bullet.transform.position = shootPoint.position;
+        bullet.transform.rotation = shootPoint.rotation;
+        bullet.SetActive(true);
+
+        var normalBullet = bullet.GetComponent<NormalBullet>();
+        if (normalBullet != null)
+        {
+            normalBullet.Init(weaponData.bulletSpeed, weaponData.range, weaponData.damage);
+        }
+    }
+    
+    public void ReturnBullet(GameObject bullet)
+    {
+        if (!bulletPool.Contains(bullet))
+        {
+            Debug.LogWarning("Returned bullet does not belong to this pool.");
+            return;
+        }
+        
+        bullet.transform.localPosition = Vector3.zero;
+        bullet.transform.localRotation = Quaternion.identity;
+        bullet.SetActive(false);
     }
 }
