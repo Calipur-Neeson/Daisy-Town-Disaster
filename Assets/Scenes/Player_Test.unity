@@ -1396,6 +1396,8 @@ MonoBehaviour:
   canvas2: {fileID: 1481747314}
   player1Button: {fileID: 1448128932}
   player2Button: {fileID: 1120106720}
+  player1Prefab: {fileID: 4622603795820123477, guid: 4ba49581357aa2843823f673915b4d9e, type: 3}
+  player2Prefab: {fileID: 4622603795820123477, guid: 4ece47aaf74fbc54b978707ea9ecfb9b, type: 3}
 --- !u!4 &884430605
 Transform:
   m_ObjectHideFlags: 0

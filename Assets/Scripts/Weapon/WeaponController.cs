@@ -98,8 +98,6 @@ public class WeaponController : NetworkBehaviour
     [ClientRpc]
     private void FireOnClientRpc(int bulletIndex)
     {
-        if (IsServer) return;
-
         ActivateBullet(bulletIndex);
     }
 

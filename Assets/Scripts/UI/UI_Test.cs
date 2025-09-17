@@ -12,6 +12,8 @@ public class UI_Test : MonoBehaviour
     [SerializeField] private Canvas canvas2;
     [SerializeField] private Button player1Button;
     [SerializeField] private Button player2Button;
+    [SerializeField] private GameObject player1Prefab;
+    [SerializeField] private GameObject player2Prefab;
 
     private bool isHost;
     private void Start()
@@ -23,8 +25,6 @@ public class UI_Test : MonoBehaviour
         clientButton?.onClick.AddListener(OnClientButtonClick);
         player1Button?.onClick.AddListener(OnPlayer1ButtonClick);
         player2Button?.onClick.AddListener(OnPlayer2ButtonClick);
-
-        //var prefabs = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs;
     }
 
     private void  OnHostButtonClick()
@@ -43,17 +43,19 @@ public class UI_Test : MonoBehaviour
 
     private void OnPlayer1ButtonClick()
     {
-        SetCharacterAndStart(0);
+        SetCharacterAndStart(player1Prefab);
+        Debug.Log("revolver");
     }
 
     private void OnPlayer2ButtonClick()
     {
-        SetCharacterAndStart(1);
+        SetCharacterAndStart(player2Prefab);
+        Debug.Log("rifle");
     }
 
-    private void SetCharacterAndStart(int prefabIndex)
+    private void SetCharacterAndStart(GameObject character)
     {
-        NetworkManager.Singleton.NetworkConfig.ConnectionData = new byte[] { (byte)prefabIndex };
+        NetworkManager.Singleton.NetworkConfig.PlayerPrefab = character;
 
         if (isHost)
             NetworkManager.Singleton.StartHost();
