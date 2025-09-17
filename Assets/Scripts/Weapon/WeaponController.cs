@@ -115,7 +115,7 @@ public class WeaponController : NetworkBehaviour
     {
         for (int i = 0; i < weaponData.magazine; i++)
         {
-            GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint.position, Quaternion.identity, shootPoint);
+            GameObject bullet = Instantiate(weaponData.bulletPrefab, shootPoint.position, Quaternion.identity,shootPoint);
             var nb = bullet.GetComponent<NormalBullet>();
             if (nb != null)
             {
