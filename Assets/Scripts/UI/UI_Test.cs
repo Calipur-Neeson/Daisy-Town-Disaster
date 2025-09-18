@@ -9,12 +9,12 @@ public class UI_Test : MonoBehaviour
     [SerializeField] private Button hostButton;
     [SerializeField] private Button clientButton;
 
+    [Header("Choose player")]
     [SerializeField] private Canvas canvas2;
     [SerializeField] private Button player1Button;
     [SerializeField] private Button player2Button;
-    [SerializeField] private GameObject player1Prefab;
-    [SerializeField] private GameObject player2Prefab;
 
+    [SerializeField] private PlayerSpawner playerSpawner;
     private bool isHost;
     private void Start()
     {
@@ -43,20 +43,19 @@ public class UI_Test : MonoBehaviour
 
     private void OnPlayer1ButtonClick()
     {
-        SetCharacterAndStart(player1Prefab);
+        SetCharacterAndStart(playerSpawner.GetPlayerPrefab(0));
         Debug.Log("revolver");
     }
 
     private void OnPlayer2ButtonClick()
     {
-        SetCharacterAndStart(player2Prefab);
+        SetCharacterAndStart(playerSpawner.GetPlayerPrefab(1));
         Debug.Log("rifle");
     }
 
-    private void SetCharacterAndStart(GameObject character)
+    private void SetCharacterAndStart(PlayerController player)
     {
-        NetworkManager.Singleton.NetworkConfig.PlayerPrefab = character;
-
+        playerSpawner.SpawnPlayer(player);
         if (isHost)
             NetworkManager.Singleton.StartHost();
         else
