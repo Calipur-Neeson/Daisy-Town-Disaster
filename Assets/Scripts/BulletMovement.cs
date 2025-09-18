@@ -3,7 +3,7 @@ using static UnityEngine.GraphicsBuffer;
 
 
 [RequireComponent(typeof(Rigidbody))]
-public class Bullet : MonoBehaviour
+public class BulletMovenment : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
     [SerializeField] private float rotateSpeed;
