@@ -8,12 +8,17 @@ public class BulletMovenment : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float rotateSpeed;
 
-    [SerializeField] private float detectRadiu = 15f;
     [SerializeField] private Transform player;
 
     private Vector3 bulletToPlayer;
     private Quaternion targetRotation;
 
+    private void Start()
+    {
+        var playerController = FindFirstObjectByType<PlayerController>();
+        player = playerController.transform;
+        
+    }
     private void Update()
     {
         bulletToPlayer = transform.position - player.position;

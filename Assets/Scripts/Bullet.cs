@@ -1,34 +1,41 @@
-using UnityEditor.SceneManagement;
+using System.Diagnostics.Tracing;
 using UnityEngine;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(SphereCollider))]
 public class Bullet : MonoBehaviour
 {
     public int damage = 10;
 
-    private SphereCollider collider;
+    private SphereCollider sphereCollider;
+
+    [SerializeField] private BulletSpawnChannelSO bulletSpawnChannelSO;
 
     private void Start()
     {
-        collider = GetComponent<SphereCollider>();
-        if (collider == null )
+        sphereCollider = GetComponent<SphereCollider>();
+        if (sphereCollider == null )
         {
             Debug.LogWarning("We don't have sphere component!");
-            collider = gameObject.AddComponent<SphereCollider>();
+            sphereCollider = gameObject.AddComponent<SphereCollider>();
         }
-        collider.isTrigger = false;
+        sphereCollider.isTrigger = false;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         Health health = collision.gameObject.GetComponent<Health>();
         if (health != null)
-        
         {
             health.TakeDamage(damage);
+            Destroy(gameObject);
         }
 
-        Destroy(gameObject);
-
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            Destroy(gameObject);
+            bulletSpawnChannelSO?.RaiseEvent(new Context());
+        }
     }
+
 }
